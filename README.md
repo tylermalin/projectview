@@ -73,3 +73,30 @@ npm run build
 
 The built files will be in the `dist` directory.
 
+## Deployment
+
+### Vercel Deployment
+
+1. Push your code to a Git repository (GitHub, GitLab, or Bitbucket)
+
+2. Import your project in [Vercel](https://vercel.com):
+   - Click "New Project"
+   - Import your Git repository
+   - Vercel will auto-detect Vite settings
+   - Click "Deploy"
+
+3. Your app will be live at `https://your-project.vercel.app`
+
+### Environment Variables
+
+Currently, no environment variables are required. If you need to add API keys or other secrets in the future:
+- Add them in Vercel Dashboard → Project Settings → Environment Variables
+- Prefix with `VITE_` for Vite to expose them (e.g., `VITE_API_KEY`)
+
+## Git Setup
+
+The project is already configured with:
+- `.gitignore` - Excludes `node_modules`, `dist`, and other build artifacts
+- `vercel.json` - Vercel deployment configuration for SPA routing
+- Repository: https://github.com/tylermalin/projectview.git
+
