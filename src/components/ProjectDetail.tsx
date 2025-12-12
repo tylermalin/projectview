@@ -4,6 +4,7 @@ import { Icon, LatLngBounds } from 'leaflet';
 import { LifecycleEvent, BlockchainProof } from '../types';
 import { mockProjects } from '../data/mockData';
 import MapView from './MapView';
+import PlaybackView from './PlaybackView';
 
 // Create custom icons for different event types
 const createIcon = (color: string, emoji: string) => {
@@ -104,6 +105,7 @@ export default function ProjectDetail() {
   const [selectedEventIndex, setSelectedEventIndex] = useState<number | null>(null);
   const [fullScreenImage, setFullScreenImage] = useState<string | null>(null);
   const [expandedLocations, setExpandedLocations] = useState<Set<string>>(new Set(['project_prep', 'reactor', 'farm'])); // All expanded by default
+  const [isPlaying, setIsPlaying] = useState(false);
   
   const project = mockProjects.find(p => p.id === id);
 
@@ -525,6 +527,46 @@ export default function ProjectDetail() {
                       </a>
                     </div>
                   )}
+                  
+                  {/* Additional Documents */}
+                  {project.additionalDocuments && project.additionalDocuments.length > 0 && (
+                    <div className="mb-3">
+                      <div className="text-xs font-semibold text-sustainability-gray/60 uppercase tracking-wide mb-2">Additional Documentation</div>
+                      <div className="space-y-2">
+                        {project.additionalDocuments.map((doc, idx) => (
+                          <a
+                            key={idx}
+                            href={doc.url}
+                            target="_blank"
+                            rel="noopener noreferrer"
+                            className="flex items-center gap-2 text-sm text-sustainability-teal hover:text-sustainability-green hover:underline font-medium"
+                          >
+                            <svg xmlns="http://www.w3.org/2000/svg" className="h-4 w-4" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth="2">
+                              <path strokeLinecap="round" strokeLinejoin="round" d="M9 12h6m-6 4h6m2 5H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z" />
+                            </svg>
+                            <span>{doc.label}</span>
+                            <svg xmlns="http://www.w3.org/2000/svg" className="h-3 w-3" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth="2">
+                              <path strokeLinecap="round" strokeLinejoin="round" d="M10 6H6a2 2 0 00-2 2v10a2 2 0 002 2h10a2 2 0 002-2v-4M14 4h6m0 0v6m0-6L10 14" />
+                            </svg>
+                          </a>
+                        ))}
+                      </div>
+                    </div>
+                  )}
+                  
+                  {/* Play Button */}
+                  <div className="mb-4 mt-4">
+                    <button
+                      onClick={() => setIsPlaying(true)}
+                      className="w-full flex items-center justify-center gap-3 px-6 py-3 bg-white border-2 border-sustainability-green hover:bg-sustainability-bg rounded-tile shadow-sm transition-all duration-200 hover:shadow-md font-semibold"
+                      title="Play Project Timeline"
+                    >
+                      <svg xmlns="http://www.w3.org/2000/svg" className="h-6 w-6 text-sustainability-green" fill="currentColor" viewBox="0 0 24 24">
+                        <path d="M8 5v14l11-7z"/>
+                      </svg>
+                      <span className="text-base text-sustainability-gray">Play Project Timeline</span>
+                    </button>
+                  </div>
                 </div>
                 
                 {/* CO2 Quantity */}
@@ -906,6 +948,90 @@ export default function ProjectDetail() {
             />
           </div>
         </>
+      )}
+
+      {/* Full Screen Playback Modal */}
+      {isPlaying && (
+        <PlaybackView
+          project={project}
+          events={project.events}
+          eventIcons={eventIcons}
+          mainLocations={mainLocations}
+          mainLocationIcons={isERW ? erwLocationIcons : biocharLocationIcons}
+          methodology={project.methodology}
+          isTransportationEvent={(event) => {
+            return (
+              event.type === 'feedstock_delivery' || 
+              event.type === 'feedstock_to_reactor_delivery' ||
+              event.type === 'biochar_delivery' ||
+              event.type === 'transport_logistics' ||
+              event.type === 'field_mobilization' ||
+              event.type === 'feedstock_delivery_source_to_staging' ||
+              event.type === 'feedstock_delivery_staging_to_field'
+            );
+          }}
+          locationBounds={(event) => {
+            const isTransport = (
+              event.type === 'feedstock_delivery' || 
+              event.type === 'feedstock_to_reactor_delivery' ||
+              event.type === 'biochar_delivery' ||
+              event.type === 'transport_logistics' ||
+              event.type === 'field_mobilization' ||
+              event.type === 'feedstock_delivery_source_to_staging' ||
+              event.type === 'feedstock_delivery_staging_to_field'
+            );
+            
+            if (isTransport) {
+              return null;
+            }
+            
+            // Create a square boundary around the location (~100 acres = ~632m radius)
+            const radiusDegrees = 0.0057 / 2; // Half the side length in degrees
+            const bounds = new LatLngBounds(
+              [event.location.lat - radiusDegrees, event.location.lng - radiusDegrees],
+              [event.location.lat + radiusDegrees, event.location.lng + radiusDegrees]
+            );
+            return bounds;
+          }}
+          highlightedPath={(event) => {
+            // Biochar transportation events
+            if (event.type === 'feedstock_to_reactor_delivery' && mainLocations.projectPrep && mainLocations.pyrolysisPlant) {
+              return [mainLocations.projectPrep, mainLocations.pyrolysisPlant];
+            }
+            
+            if (event.type === 'feedstock_delivery' && mainLocations.projectPrep && mainLocations.pyrolysisPlant) {
+              return [mainLocations.projectPrep, mainLocations.pyrolysisPlant];
+            }
+            
+            if (event.type === 'biochar_delivery' && mainLocations.pyrolysisPlant && mainLocations.applicationField) {
+              return [mainLocations.pyrolysisPlant, mainLocations.applicationField];
+            }
+            
+            // ERW transportation events
+            if (event.type === 'feedstock_delivery_source_to_staging' && mainLocations.projectPrep && mainLocations.pyrolysisPlant) {
+              return [mainLocations.projectPrep, mainLocations.pyrolysisPlant];
+            }
+            
+            if (event.type === 'feedstock_delivery_staging_to_field' && mainLocations.pyrolysisPlant && mainLocations.applicationField) {
+              return [mainLocations.pyrolysisPlant, mainLocations.applicationField];
+            }
+            
+            // Legacy ERW transportation events
+            if (event.type === 'transport_logistics' && mainLocations.projectPrep && mainLocations.pyrolysisPlant) {
+              return [mainLocations.projectPrep, mainLocations.pyrolysisPlant];
+            }
+            
+            if (event.type === 'field_mobilization' && mainLocations.pyrolysisPlant && mainLocations.applicationField) {
+              return [mainLocations.pyrolysisPlant, mainLocations.applicationField];
+            }
+            
+            return null;
+          }}
+          mainLocationPaths={mainLocationPaths}
+          onClose={() => {
+            setIsPlaying(false);
+          }}
+        />
       )}
     </div>
   );

@@ -8,6 +8,12 @@ export const mockProjects: Project[] = [
     protocol: 'Isometric Biochar Production and Storage v1.2',
     projectId: 'MAUI-505-BIO-001',
     projectDesignDocument: '/documents/MAUI-505-BIO-001-PDD.pdf',
+    additionalDocuments: [
+      {
+        label: 'Malama Biochar Protocol and Technical Architecture Report',
+        url: '/documents/Malama_ Full Protocol & Technical Architecture Report.pdf',
+      },
+    ],
     co2Quantity: 2004.48,
     location: { lat: 20.9211, lng: -156.3051 }, // Feedstock Delivery/Prep location
     date: '2024-07-19',
@@ -1108,6 +1114,12 @@ export const mockProjects: Project[] = [
     protocol: 'Isometric Enhanced Weathering in Agriculture v1.1',
     projectId: 'IDAHO-BASALT-001',
     projectDesignDocument: '/documents/IDAHO-BASALT-001-PDD.pdf',
+    additionalDocuments: [
+      {
+        label: 'Enhanced Rock Weathering Projects on Malama',
+        url: '/documents/Enhanced Rock Weathering Projects on Malama_ Full Protocol & Technical Architecture Report.pdf',
+      },
+    ],
     co2Quantity: 154.50,
     location: { lat: 43.8251, lng: -115.8903 },
     date: '2026-02-01',

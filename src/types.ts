@@ -53,6 +53,11 @@ export interface LifecycleEvent {
   metadata?: Record<string, any>;
 }
 
+export interface ProjectDocument {
+  label: string;
+  url: string;
+}
+
 export interface Project {
   id: string;
   name: string;
@@ -60,6 +65,7 @@ export interface Project {
   protocol?: string;
   projectId?: string;
   projectDesignDocument?: string; // URL to PDF
+  additionalDocuments?: ProjectDocument[]; // Additional project-type documentation
   co2Quantity: number;
   location: Location;
   date: string;

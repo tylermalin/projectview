@@ -118,6 +118,31 @@ export default function ProjectList({ projects }: ProjectListProps) {
                     </div>
                   )}
                   
+                  {/* Additional Documents */}
+                  {project.additionalDocuments && project.additionalDocuments.length > 0 && (
+                    <div className="mb-3 space-y-2">
+                      <div className="text-xs font-semibold text-sustainability-gray/60 uppercase tracking-wide">Additional Documentation</div>
+                      {project.additionalDocuments.map((doc, idx) => (
+                        <a
+                          key={idx}
+                          href={doc.url}
+                          target="_blank"
+                          rel="noopener noreferrer"
+                          onClick={(e) => e.stopPropagation()}
+                          className="flex items-center gap-2 text-sm text-sustainability-teal hover:text-sustainability-green hover:underline font-medium"
+                        >
+                          <svg xmlns="http://www.w3.org/2000/svg" className="h-4 w-4" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth="2">
+                            <path strokeLinecap="round" strokeLinejoin="round" d="M9 12h6m-6 4h6m2 5H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z" />
+                          </svg>
+                          <span className="truncate">{doc.label}</span>
+                          <svg xmlns="http://www.w3.org/2000/svg" className="h-3 w-3 flex-shrink-0" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth="2">
+                            <path strokeLinecap="round" strokeLinejoin="round" d="M10 6H6a2 2 0 00-2 2v10a2 2 0 002 2h10a2 2 0 002-2v-4M14 4h6m0 0v6m0-6L10 14" />
+                          </svg>
+                        </a>
+                      ))}
+                    </div>
+                  )}
+                  
                   <div className="flex items-baseline gap-2 mb-4">
                     <span className="text-3xl font-bold text-sustainability-green">
                       {project.co2Quantity.toLocaleString(undefined, { minimumFractionDigits: 2, maximumFractionDigits: 2 })}
