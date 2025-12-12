@@ -19,6 +19,7 @@ interface MapViewProps {
     applicationField: [number, number] | null;
   };
   mainLocationIcons?: Record<string, Icon>;
+  methodology?: 'biochar' | 'enhanced_rock_weathering';
 }
 
 // Component to handle map view updates
@@ -42,7 +43,8 @@ function MapController({ center, zoom, bounds }: { center?: [number, number]; zo
   return null;
 }
 
-export default function MapView({ events, center, mainLocationPaths = [], highlightedPath, eventIcons, selectedEventLocation, locationBounds, isTransportationEvent = false, zoomToPath, mainLocations, mainLocationIcons }: MapViewProps) {
+export default function MapView({ events, center, mainLocationPaths = [], highlightedPath, eventIcons, selectedEventLocation, locationBounds, isTransportationEvent = false, zoomToPath, mainLocations, mainLocationIcons, methodology }: MapViewProps) {
+  const isERW = methodology === 'enhanced_rock_weathering';
   const [isClient, setIsClient] = useState(false);
 
   useEffect(() => {
@@ -104,12 +106,16 @@ export default function MapView({ events, center, mainLocationPaths = [], highli
           {mainLocations.projectPrep && (
             <Marker
               position={mainLocations.projectPrep}
-              icon={mainLocationIcons.project_prep}
+              icon={isERW ? mainLocationIcons.feedstock_source : mainLocationIcons.project_prep}
             >
               <Popup>
                 <div className="text-sm">
-                  <div className="font-bold text-green-600">Project Prep Location</div>
-                  <div className="text-xs text-neutral-600 mt-1">Feedstock Delivery & Prep</div>
+                  <div className="font-bold text-green-600">
+                    {isERW ? 'Feedstock Source (Premier Aggregates)' : 'Project Prep Location'}
+                  </div>
+                  <div className="text-xs text-neutral-600 mt-1">
+                    {isERW ? 'Quarry near Boise' : 'Feedstock Delivery & Prep'}
+                  </div>
                 </div>
               </Popup>
             </Marker>
@@ -117,12 +123,16 @@ export default function MapView({ events, center, mainLocationPaths = [], highli
           {mainLocations.pyrolysisPlant && (
             <Marker
               position={mainLocations.pyrolysisPlant}
-              icon={mainLocationIcons.pyrolysis_plant}
+              icon={isERW ? mainLocationIcons.staging_grounds : mainLocationIcons.pyrolysis_plant}
             >
               <Popup>
                 <div className="text-sm">
-                  <div className="font-bold text-red-600">Pyrolysis Plant</div>
-                  <div className="text-xs text-neutral-600 mt-1">Reactor Operations</div>
+                  <div className="font-bold text-red-600">
+                    {isERW ? 'Malama Staging Grounds' : 'Pyrolysis Plant'}
+                  </div>
+                  <div className="text-xs text-neutral-600 mt-1">
+                    {isERW ? 'Idaho City Basecamp' : 'Reactor Operations'}
+                  </div>
                 </div>
               </Popup>
             </Marker>
@@ -134,8 +144,12 @@ export default function MapView({ events, center, mainLocationPaths = [], highli
             >
               <Popup>
                 <div className="text-sm">
-                  <div className="font-bold text-teal-600">Biochar Application Field</div>
-                  <div className="text-xs text-neutral-600 mt-1">Farm Field Location</div>
+                  <div className="font-bold text-teal-600">
+                    {isERW ? 'Application Field' : 'Biochar Application Field'}
+                  </div>
+                  <div className="text-xs text-neutral-600 mt-1">
+                    {isERW ? 'Field Location' : 'Farm Field Location'}
+                  </div>
                 </div>
               </Popup>
             </Marker>

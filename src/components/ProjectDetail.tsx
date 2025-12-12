@@ -56,13 +56,47 @@ const eventIcons: Record<string, Icon> = {
   biochar_bagging: createIcon('#3498db', '📦'),
   farm_selection: createIcon('#16a085', '✅'),
   monitoring_report: createIcon('#9b59b6', '📈'),
+  // ERW event types
+  rock_characterization: createIcon('#7f8c8d', '🏔️'),
+  rock_weighing: createIcon('#95a5a6', '⚖️'),
+  transport_logistics: createIcon('#3498db', '🚛'),
+  feedstock_intake: createIcon('#e67e22', '⛺'),
+  baseline_lab_prep: createIcon('#9b59b6', '🔬'),
+  field_mobilization: createIcon('#16a085', '🚜'),
+  baseline_establishment: createIcon('#27ae60', '🌾'),
+  rock_application: createIcon('#27ae60', '🌾'),
+  verification: createIcon('#3498db', '🔍'),
+  environmental_monitoring: createIcon('#3498db', '🌧️'),
+  net_cdr_calculation: createIcon('#2ecc71', '📈'),
+  // ERW shipping/receiving events
+  feedstock_delivery_source_to_staging: createIcon('#3498db', '🚛'),
+  feedstock_received_staging: createIcon('#16a085', '✅'),
+  feedstock_delivery_staging_to_field: createIcon('#3498db', '🚛'),
+  feedstock_received_field: createIcon('#16a085', '✅'),
+  // Isometric Biochar v1.2 compliance events
+  stakeholder_engagement: createIcon('#16a085', '👥'),
+  waste_verification: createIcon('#9b59b6', '♻️'),
+  reactor_design_validation: createIcon('#e74c3c', '🔧'),
+  emissions_monitoring: createIcon('#3498db', '📊'),
+  safety_screening: createIcon('#e67e22', '🛡️'),
+  carbon_stability_test: createIcon('#9b59b6', '🔬'),
+  certified_weigh_in: createIcon('#95a5a6', '⚖️'),
+  application_loss_accounting: createIcon('#16a085', '📉'),
+  net_credit_minting: createIcon('#2ecc71', '💰'),
 };
 
-// Main location icons
-const mainLocationIcons = {
+// Main location icons - Biochar
+const biocharLocationIcons = {
   project_prep: createMainLocationIcon('#10b981', '🚀', 48), // Start location
   pyrolysis_plant: createMainLocationIcon('#e74c3c', '⚗️', 48), // Reactor icon
   application_field: createMainLocationIcon('#16a085', '🚜', 48), // Farm icon
+};
+
+// Main location icons - ERW
+const erwLocationIcons = {
+  feedstock_source: createMainLocationIcon('#7f8c8d', '🏔️', 48), // Quarry icon
+  staging_grounds: createMainLocationIcon('#e67e22', '⛺', 48), // Basecamp icon
+  application_field: createMainLocationIcon('#27ae60', '🌾', 48), // Field icon
 };
 
 export default function ProjectDetail() {
@@ -84,32 +118,58 @@ export default function ProjectDetail() {
     );
   }
 
+  // Check if this is an ERW project
+  const isERW = project.methodology === 'enhanced_rock_weathering';
+
   // Get three main locations for initial map display
   const mainLocations = useMemo(() => {
-    // Find Project Prep location - use first event at that location (20.9211, -156.3051)
-    const projectPrep = project.events.find(e => 
-      Math.abs(e.location.lat - 20.9211) < 0.001 && 
-      Math.abs(e.location.lng - (-156.3051)) < 0.001
-    );
     
-    // Find Pyrolysis Plant location - use first event at that location (20.9211, -156.3087)
-    const pyrolysisPlant = project.events.find(e => 
-      Math.abs(e.location.lat - 20.9211) < 0.001 && 
-      Math.abs(e.location.lng - (-156.3087)) < 0.001
-    );
-    
-    // Find Application Field location - use first event at that location (20.9350, -156.5100)
-    const applicationField = project.events.find(e => 
-      Math.abs(e.location.lat - 20.9350) < 0.001 && 
-      Math.abs(e.location.lng - (-156.5100)) < 0.001
-    );
-    
-    return {
-      projectPrep: projectPrep ? [projectPrep.location.lat, projectPrep.location.lng] as [number, number] : null,
-      pyrolysisPlant: pyrolysisPlant ? [pyrolysisPlant.location.lat, pyrolysisPlant.location.lng] as [number, number] : null,
-      applicationField: applicationField ? [applicationField.location.lat, applicationField.location.lng] as [number, number] : null,
-    };
-  }, [project.events]);
+    if (isERW) {
+      // ERW locations: Feedstock Source, Basecamp, Field
+      const feedstockSource = project.events.find(e => 
+        Math.abs(e.location.lat - 43.4862) < 0.001 && 
+        Math.abs(e.location.lng - (-116.1265)) < 0.001
+      );
+      
+      const basecamp = project.events.find(e => 
+        Math.abs(e.location.lat - 43.8055) < 0.001 && 
+        Math.abs(e.location.lng - (-115.8672)) < 0.001
+      );
+      
+      const field = project.events.find(e => 
+        Math.abs(e.location.lat - 43.8251) < 0.001 && 
+        Math.abs(e.location.lng - (-115.8903)) < 0.001
+      );
+      
+      return {
+        projectPrep: feedstockSource ? [feedstockSource.location.lat, feedstockSource.location.lng] as [number, number] : null,
+        pyrolysisPlant: basecamp ? [basecamp.location.lat, basecamp.location.lng] as [number, number] : null,
+        applicationField: field ? [field.location.lat, field.location.lng] as [number, number] : null,
+      };
+    } else {
+      // Biochar locations: Project Prep, Pyrolysis Plant, Application Field
+      const projectPrep = project.events.find(e => 
+        Math.abs(e.location.lat - 20.9211) < 0.001 && 
+        Math.abs(e.location.lng - (-156.3051)) < 0.001
+      );
+      
+      const pyrolysisPlant = project.events.find(e => 
+        Math.abs(e.location.lat - 20.9211) < 0.001 && 
+        Math.abs(e.location.lng - (-156.3087)) < 0.001
+      );
+      
+      const applicationField = project.events.find(e => 
+        Math.abs(e.location.lat - 20.9350) < 0.001 && 
+        Math.abs(e.location.lng - (-156.5100)) < 0.001
+      );
+      
+      return {
+        projectPrep: projectPrep ? [projectPrep.location.lat, projectPrep.location.lng] as [number, number] : null,
+        pyrolysisPlant: pyrolysisPlant ? [pyrolysisPlant.location.lat, pyrolysisPlant.location.lng] as [number, number] : null,
+        applicationField: applicationField ? [applicationField.location.lat, applicationField.location.lng] as [number, number] : null,
+      };
+    }
+  }, [project.events, isERW]);
 
 
   const visibleEvents = useMemo(() => {
@@ -149,18 +209,34 @@ export default function ProjectDetail() {
     const selectedEvent = project.events[selectedEventIndex];
     if (!selectedEvent) return null;
     
-    // Check for Feedstock to Reactor Delivery
+    // Biochar transportation events
     if (selectedEvent.type === 'feedstock_to_reactor_delivery' && mainLocations.projectPrep && mainLocations.pyrolysisPlant) {
       return [mainLocations.projectPrep, mainLocations.pyrolysisPlant];
     }
     
-    // Check for Feedstock Delivery
     if (selectedEvent.type === 'feedstock_delivery' && mainLocations.projectPrep && mainLocations.pyrolysisPlant) {
       return [mainLocations.projectPrep, mainLocations.pyrolysisPlant];
     }
     
-    // Check for Biochar Delivery
     if (selectedEvent.type === 'biochar_delivery' && mainLocations.pyrolysisPlant && mainLocations.applicationField) {
+      return [mainLocations.pyrolysisPlant, mainLocations.applicationField];
+    }
+    
+    // ERW transportation events
+    if (selectedEvent.type === 'feedstock_delivery_source_to_staging' && mainLocations.projectPrep && mainLocations.pyrolysisPlant) {
+      return [mainLocations.projectPrep, mainLocations.pyrolysisPlant];
+    }
+    
+    if (selectedEvent.type === 'feedstock_delivery_staging_to_field' && mainLocations.pyrolysisPlant && mainLocations.applicationField) {
+      return [mainLocations.pyrolysisPlant, mainLocations.applicationField];
+    }
+    
+    // Legacy ERW transportation events (for backward compatibility)
+    if (selectedEvent.type === 'transport_logistics' && mainLocations.projectPrep && mainLocations.pyrolysisPlant) {
+      return [mainLocations.projectPrep, mainLocations.pyrolysisPlant];
+    }
+    
+    if (selectedEvent.type === 'field_mobilization' && mainLocations.pyrolysisPlant && mainLocations.applicationField) {
       return [mainLocations.pyrolysisPlant, mainLocations.applicationField];
     }
     
@@ -190,7 +266,11 @@ export default function ProjectDetail() {
     return event ? (
       event.type === 'feedstock_delivery' || 
       event.type === 'feedstock_to_reactor_delivery' ||
-      event.type === 'biochar_delivery'
+      event.type === 'biochar_delivery' ||
+      event.type === 'transport_logistics' ||
+      event.type === 'field_mobilization' ||
+      event.type === 'feedstock_delivery_source_to_staging' ||
+      event.type === 'feedstock_delivery_staging_to_field'
     ) : false;
   }, [selectedEventIndex, project.events]);
 
@@ -406,6 +486,48 @@ export default function ProjectDetail() {
           <div className="flex h-full w-full flex-col">
             <div className="flex shrink-0 flex-col justify-center p-6 bg-gradient-to-br from-sustainability-bg to-white border-b border-gray-200">
               <div className="flex w-full flex-col items-center justify-between gap-4">
+                {/* Project Name */}
+                <div className="w-full text-center">
+                  <h1 className="text-2xl font-bold text-sustainability-gray mb-2">{project.name}</h1>
+                  
+                  {/* Protocol */}
+                  {project.protocol && (
+                    <div className="mb-2">
+                      <div className="text-xs font-semibold text-sustainability-gray/60 uppercase tracking-wide mb-1">Protocol</div>
+                      <div className="text-sm text-sustainability-gray">{project.protocol}</div>
+                    </div>
+                  )}
+                  
+                  {/* Project ID */}
+                  {project.projectId && (
+                    <div className="mb-2">
+                      <div className="text-xs font-semibold text-sustainability-gray/60 uppercase tracking-wide mb-1">Project ID</div>
+                      <div className="text-sm font-mono text-sustainability-gray">{project.projectId}</div>
+                    </div>
+                  )}
+                  
+                  {/* Project Design Document Link */}
+                  {project.projectDesignDocument && (
+                    <div className="mb-3">
+                      <a
+                        href={project.projectDesignDocument}
+                        target="_blank"
+                        rel="noopener noreferrer"
+                        className="inline-flex items-center gap-2 text-sm text-sustainability-teal hover:text-sustainability-green hover:underline font-medium"
+                      >
+                        <svg xmlns="http://www.w3.org/2000/svg" className="h-4 w-4" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth="2">
+                          <path strokeLinecap="round" strokeLinejoin="round" d="M9 12h6m-6 4h6m2 5H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z" />
+                        </svg>
+                        <span>Project Design Document (PDD)</span>
+                        <svg xmlns="http://www.w3.org/2000/svg" className="h-3 w-3" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth="2">
+                          <path strokeLinecap="round" strokeLinejoin="round" d="M10 6H6a2 2 0 00-2 2v10a2 2 0 002 2h10a2 2 0 002-2v-4M14 4h6m0 0v6m0-6L10 14" />
+                        </svg>
+                      </a>
+                    </div>
+                  )}
+                </div>
+                
+                {/* CO2 Quantity */}
                 <div className="flex items-baseline gap-3">
                   <svg xmlns="http://www.w3.org/2000/svg" className="h-7 w-7 text-sustainability-green" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth="2.5">
                     <path strokeLinecap="round" strokeLinejoin="round" d="M19 14l-7 7m0 0l-7-7m7 7V3" />
@@ -413,6 +535,8 @@ export default function ProjectDetail() {
                   <span className="text-4xl font-bold text-sustainability-gray">{project.co2Quantity.toLocaleString()}</span>
                   <span className="text-lg text-sustainability-gray/70 font-medium">kg&nbsp;CO<sub>2</sub>e</span>
                 </div>
+                
+                {/* Location and Date */}
                 <div className="flex flex-row justify-center gap-6 text-sm">
                   <div className="flex items-center gap-2 text-sustainability-gray/70">
                     <svg xmlns="http://www.w3.org/2000/svg" className="h-4 w-4 text-sustainability-sky" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth="2">
@@ -542,17 +666,34 @@ export default function ProjectDetail() {
                         const lat = event.location.lat;
                         const lng = event.location.lng;
                         
-                        // Project Prep Location: 20.9211, -156.3051
-                        if (Math.abs(lat - 20.9211) < 0.001 && Math.abs(lng - (-156.3051)) < 0.001) {
-                          projectPrepEvents.push({ event, index });
-                        }
-                        // Reactor Location: 20.9211, -156.3087
-                        else if (Math.abs(lat - 20.9211) < 0.001 && Math.abs(lng - (-156.3087)) < 0.001) {
-                          reactorEvents.push({ event, index });
-                        }
-                        // Farm Location: 20.9350, -156.5100
-                        else if (Math.abs(lat - 20.9350) < 0.001 && Math.abs(lng - (-156.5100)) < 0.001) {
-                          farmEvents.push({ event, index });
+                        if (isERW) {
+                          // ERW locations
+                          // Feedstock Source: 43.4862, -116.1265
+                          if (Math.abs(lat - 43.4862) < 0.001 && Math.abs(lng - (-116.1265)) < 0.001) {
+                            projectPrepEvents.push({ event, index });
+                          }
+                          // Basecamp: 43.8055, -115.8672
+                          else if (Math.abs(lat - 43.8055) < 0.001 && Math.abs(lng - (-115.8672)) < 0.001) {
+                            reactorEvents.push({ event, index });
+                          }
+                          // Field: 43.8251, -115.8903
+                          else if (Math.abs(lat - 43.8251) < 0.001 && Math.abs(lng - (-115.8903)) < 0.001) {
+                            farmEvents.push({ event, index });
+                          }
+                        } else {
+                          // Biochar locations
+                          // Project Prep Location: 20.9211, -156.3051
+                          if (Math.abs(lat - 20.9211) < 0.001 && Math.abs(lng - (-156.3051)) < 0.001) {
+                            projectPrepEvents.push({ event, index });
+                          }
+                          // Reactor Location: 20.9211, -156.3087
+                          else if (Math.abs(lat - 20.9211) < 0.001 && Math.abs(lng - (-156.3087)) < 0.001) {
+                            reactorEvents.push({ event, index });
+                          }
+                          // Farm Location: 20.9350, -156.5100
+                          else if (Math.abs(lat - 20.9350) < 0.001 && Math.abs(lng - (-156.5100)) < 0.001) {
+                            farmEvents.push({ event, index });
+                          }
                         }
                       });
                       
@@ -689,24 +830,24 @@ export default function ProjectDetail() {
                         <>
                           {renderLocationSection(
                             'project_prep',
-                            'Provisioning, Planning and Delivery Location',
-                            '🚀',
+                            isERW ? 'Feedstock Source (Premier Aggregates)' : 'Provisioning, Planning and Delivery Location',
+                            isERW ? '🏔️' : '🚀',
                             projectPrepEvents,
-                            '20.9211°N, -156.3051°W'
+                            isERW ? '43.4862°N, -116.1265°W' : '20.9211°N, -156.3051°W'
                           )}
                           {renderLocationSection(
                             'reactor',
-                            'Reactor Location',
-                            '⚗️',
+                            isERW ? 'Malama Basecamp (Idaho City)' : 'Reactor Location',
+                            isERW ? '⛺' : '⚗️',
                             reactorEvents,
-                            '20.9211°N, -156.3087°W'
+                            isERW ? '43.8055°N, -115.8672°W' : '20.9211°N, -156.3087°W'
                           )}
                           {renderLocationSection(
                             'farm',
-                            'Farm Location',
-                            '🚜',
+                            isERW ? 'Field Location (Application Site)' : 'Farm Location',
+                            isERW ? '🌾' : '🚜',
                             farmEvents,
-                            '20.9350°N, -156.5100°W'
+                            isERW ? '43.8251°N, -115.8903°W' : '20.9350°N, -156.5100°W'
                           )}
                         </>
                       );
@@ -731,7 +872,8 @@ export default function ProjectDetail() {
             isTransportationEvent={isTransportationEvent}
             zoomToPath={selectedEventIndex === null}
             mainLocations={mainLocations}
-            mainLocationIcons={mainLocationIcons}
+            mainLocationIcons={isERW ? erwLocationIcons : biocharLocationIcons}
+            methodology={project.methodology}
           />
         </div>
       </div>
